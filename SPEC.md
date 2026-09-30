@@ -47,11 +47,11 @@ flowchart TD
 | **T0.2** | Protocolo Fotográfico | Boas práticas microbiológicas | `PROTOCOL.md` | Antigravity | **Concluído** |
 | **T0.3** | Dataset de Referência | Amostras locais | `reference_dataset/` + `dataset_manifest.json` | Antigravity | **Concluído** |
 | **T0.4** | Versionamento Git | Workspace | Repo Git com `.gitignore` e commit inicial | Antigravity | **Concluído** |
-| **T1.1** | Contratos de Dados | `SPEC.md` | `yeast_vision/contracts.py` (Pydantic v2) | Antigravity | Pendente |
-| **T1.2** | QC Camada 1 | Imagem RGB/RAW | `yeast_vision/qc.py` (Laplacian, saturação, corte) | Antigravity / Jules | Pendente |
-| **T1.3** | Detector de Placa | Imagem + QC aprovado | `yeast_vision/plate.py` (Máscara elíptica/circular adaptativa) | Antigravity / Jules | Pendente |
-| **T1.4** | Modo 1: Colônias | Placa isolada | `yeast_vision/colony.py` (Watershed float32, UFC/mL) | Antigravity / Jules | Pendente |
-| **T1.5** | Modo 2: Spot Assay | Placa isolada | `yeast_vision/spot.py` (Grade, sinal integrado, diluição) | Antigravity / Jules | Pendente |
+| **T1.1** | Contratos de Dados | `SPEC.md` | `yeast_vision/contracts.py` (Pydantic v2) | Antigravity | **Concluído** |
+| **T1.2** | QC Camada 1 | Imagem RGB/RAW | `yeast_vision/qc.py` (Laplacian, saturação, corte) | Antigravity / Jules | **Concluído** |
+| **T1.3** | Detector de Placa | Imagem + QC aprovado | `yeast_vision/plate.py` (Máscara elíptica/circular adaptativa) | Antigravity / Jules | **Concluído** |
+| **T1.4** | Modo 1: Colônias | Placa isolada | `yeast_vision/colony.py` (Watershed float32, UFC/mL) | Antigravity / Jules | **Concluído** |
+| **T1.5** | Modo 2: Spot Assay | Placa isolada | `yeast_vision/spot.py` (Grade, sinal integrado, diluição) | Antigravity / Jules | **Concluído** |
 | **T2.1** | Benchmark de Baselines | Reference dataset | `benchmarks/report_baseline.json` | Antigravity | Bloqueado por T1.4/5 |
 | **T3.1** | Interface Streamlit | Módulos `yeast_vision` | `app/main.py` com suporte a mobile browser | Antigravity / Jules | Bloqueado por T1.4/5 |
 | **T4.1** | Validação Independente | Test dataset congelado | Relatório de validação com ressalvas científicas | Antigravity | Bloqueado por T2.1 |
