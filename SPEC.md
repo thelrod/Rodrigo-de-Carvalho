@@ -52,9 +52,9 @@ flowchart TD
 | **T1.3** | Detector de Placa | Imagem + QC aprovado | `yeast_vision/plate.py` (Máscara elíptica/circular adaptativa) | Antigravity / Jules | **Concluído** |
 | **T1.4** | Modo 1: Colônias | Placa isolada | `yeast_vision/colony.py` (Watershed float32, UFC/mL) | Antigravity / Jules | **Concluído** |
 | **T1.5** | Modo 2: Spot Assay | Placa isolada | `yeast_vision/spot.py` (Grade, sinal integrado, diluição) | Antigravity / Jules | **Concluído** |
-| **T2.1** | Benchmark de Baselines | Reference dataset | `benchmarks/report_baseline.json` | Antigravity | Bloqueado por T1.4/5 |
-| **T3.1** | Interface Streamlit | Módulos `yeast_vision` | `app/main.py` com suporte a mobile browser | Antigravity / Jules | Bloqueado por T1.4/5 |
-| **T4.1** | Validação Independente | Test dataset congelado | Relatório de validação com ressalvas científicas | Antigravity | Bloqueado por T2.1 |
+| **T2.1** | Benchmark de Baselines | Reference dataset | `benchmarks/report_baseline.json` | Antigravity | **Concluído** |
+| **T3.1** | Interface Streamlit | Módulos `yeast_vision` | `app/main.py` com suporte a mobile browser | Antigravity / Jules | **Concluído** |
+| **T4.1** | Validação Independente | Test dataset congelado | Relatório de validação com ressalvas científicas | Antigravity | Pendente |
 
 ---
 

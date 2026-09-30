@@ -1,0 +1,90 @@
+{
+  "benchmark_timestamp": "2026-09-30 16:26:12",
+  "pipeline_version": "2.1.0",
+  "total_images_evaluated": 2,
+  "images_summary": [
+    {
+      "image_id": "f8cffd7054827da290eadc3a3bc659932fc6bbfa7060b1e3b935338e138430a3",
+      "filename": "SAMPLE_YPD_300mM_LiCl.jpg",
+      "medium": "YPD",
+      "stressor": "LiCl",
+      "resolution": "460x1024",
+      "qc_status": "warning_review_required",
+      "blur_score": 277.19,
+      "qc_reasons": [
+        "QC_LOW_RESOLUTION_WARNING"
+      ],
+      "plate_detected": {
+        "center": [
+          209.4,
+          406.2
+        ],
+        "radius_px": 192.32,
+        "analyzable_area_px": 98385
+      },
+      "spot_assay": {
+        "total_spots": 24,
+        "spots_with_growth": 13,
+        "max_dilution_by_strain": {
+          "Linhagem_1": 100000.0,
+          "Linhagem_2": 100000.0,
+          "Linhagem_3": 100000.0,
+          "Linhagem_4": 100000.0
+        }
+      },
+      "timings_ms": {
+        "qc": 6.24,
+        "plate_detection": 57.85,
+        "spot_analysis": 14.4,
+        "total": 78.5
+      },
+      "diagnostic_image": "annotated_SAMPLE_YPD_300mM_LiCl.jpg"
+    },
+    {
+      "image_id": "1f2718b72d2b64310df369e1653366e7d02177e56499170279fce7f15f333b7d",
+      "filename": "SAMPLE_YPGAL_20mM_LiCl.jpg",
+      "medium": "YPGal",
+      "stressor": "LiCl",
+      "resolution": "460x1024",
+      "qc_status": "warning_review_required",
+      "blur_score": 424.72,
+      "qc_reasons": [
+        "QC_LOW_RESOLUTION_WARNING",
+        "QC_UNDEREXPOSURE_WARNING"
+      ],
+      "plate_detected": {
+        "center": [
+          224.36,
+          434.53
+        ],
+        "radius_px": 218.88,
+        "analyzable_area_px": 126909
+      },
+      "spot_assay": {
+        "total_spots": 24,
+        "spots_with_growth": 10,
+        "max_dilution_by_strain": {
+          "Linhagem_1": 100000.0,
+          "Linhagem_2": 100000.0,
+          "Linhagem_3": 100000.0,
+          "Linhagem_4": 100000.0
+        }
+      },
+      "timings_ms": {
+        "qc": 4.08,
+        "plate_detection": 4.74,
+        "spot_analysis": 8.39,
+        "total": 17.2
+      },
+      "diagnostic_image": "annotated_SAMPLE_YPGAL_20mM_LiCl.jpg"
+    }
+  ],
+  "overall_metrics": {
+    "avg_qc_time_ms": 5.16,
+    "avg_plate_detection_time_ms": 31.29,
+    "avg_spot_analysis_time_ms": 11.4,
+    "qc_passed_count": 0,
+    "qc_warning_count": 2,
+    "qc_rejected_count": 0
+  }
+}
