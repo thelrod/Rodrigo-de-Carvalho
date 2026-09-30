@@ -1,5 +1,5 @@
 {
-  "benchmark_timestamp": "2026-09-30 16:26:12",
+  "benchmark_timestamp": "2026-09-30 16:34:35",
   "pipeline_version": "2.1.0",
   "total_images_evaluated": 2,
   "images_summary": [
@@ -33,10 +33,10 @@
         }
       },
       "timings_ms": {
-        "qc": 6.24,
-        "plate_detection": 57.85,
-        "spot_analysis": 14.4,
-        "total": 78.5
+        "qc": 3.65,
+        "plate_detection": 27.93,
+        "spot_analysis": 8.07,
+        "total": 39.65
       },
       "diagnostic_image": "annotated_SAMPLE_YPD_300mM_LiCl.jpg"
     },
@@ -71,18 +71,18 @@
         }
       },
       "timings_ms": {
-        "qc": 4.08,
-        "plate_detection": 4.74,
-        "spot_analysis": 8.39,
-        "total": 17.2
+        "qc": 2.71,
+        "plate_detection": 6.12,
+        "spot_analysis": 7.1,
+        "total": 15.93
       },
       "diagnostic_image": "annotated_SAMPLE_YPGAL_20mM_LiCl.jpg"
     }
   ],
   "overall_metrics": {
-    "avg_qc_time_ms": 5.16,
-    "avg_plate_detection_time_ms": 31.29,
-    "avg_spot_analysis_time_ms": 11.4,
+    "avg_qc_time_ms": 3.18,
+    "avg_plate_detection_time_ms": 17.02,
+    "avg_spot_analysis_time_ms": 7.59,
     "qc_passed_count": 0,
     "qc_warning_count": 2,
     "qc_rejected_count": 0

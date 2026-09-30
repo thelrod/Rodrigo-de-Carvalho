@@ -184,10 +184,10 @@ if "Modo 1" in mode:
     tab_vis1, tab_vis2, tab_data = st.tabs(["🖼️ Imagem Anotada com Centróides", "⚪ Máscara Binária da Placa", "📊 Tabela Morfométrica"])
 
     with tab_vis1:
-        st.image(cv2.cvtColor(annotated_img, cv2.COLOR_BGR2RGB), caption=f"Colônias identificadas (Total: {count_res.total_colonies_final})", use_column_width=True)
+        st.image(cv2.cvtColor(annotated_img, cv2.COLOR_BGR2RGB), caption=f"Colônias identificadas (Total: {count_res.total_colonies_final})", use_container_width=True)
 
     with tab_vis2:
-        st.image(mask, caption="Máscara da Área Útil (Exclusão periférica do menisco)", use_column_width=True)
+        st.image(mask, caption="Máscara da Área Útil (Exclusão periférica do menisco)", use_container_width=True)
 
     with tab_data:
         if count_res.colonies:
@@ -219,7 +219,7 @@ else:
     tab_vis1, tab_dil, tab_data = st.tabs(["🎯 Grade de Diluição Sobreposta", "📈 Maior Diluição por Linhagem", "📊 Medições Detalhadas de Sinal"])
 
     with tab_vis1:
-        st.image(cv2.cvtColor(annotated_spot, cv2.COLOR_BGR2RGB), caption="Grade de spots (Verde = Crescimento detectado, Cinza = Sem crescimento)", use_column_width=True)
+        st.image(cv2.cvtColor(annotated_spot, cv2.COLOR_BGR2RGB), caption="Grade de spots (Verde = Crescimento detectado, Cinza = Sem crescimento)", use_container_width=True)
 
     with tab_dil:
         st.subheader("Métrica Primária: Maior Diluição com Crescimento")
