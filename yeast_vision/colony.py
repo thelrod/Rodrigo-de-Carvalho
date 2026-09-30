@@ -96,8 +96,6 @@ def segment_colonies_watershed(
         return np.zeros(score_f32.shape, dtype=np.int32)
 
     # 4. Algoritmo Watershed
-    # Inverte a distância para criar vales nos centros das colônias
-    dist_inv = (dist_transform.max() - dist_transform).astype(np.float32)
     # Watershed do OpenCV requer imagem BGR de 3 canais e marcadores int32
     img_for_ws = np.repeat((score_f32 * 255.0).astype(np.uint8)[:, :, np.newaxis], 3, axis=2)
     markers_ws = markers.astype(np.int32)
@@ -187,23 +185,58 @@ def extract_colony_features(
     return colonies
 
 
+def calculate_adaptive_min_colony_area(
+    plate_radius_px: float,
+    plate_diameter_mm: float = 90.0,
+    min_colony_diameter_mm: float = 0.25,
+) -> int:
+    """
+    Calcula dinamicamente a área mínima da colônia em pixels a partir da escala micrométrica.
+
+    Referência: OpenCFU / AGAR Dataset / ISO 7218.
+    Em placas de 90 mm, uma colônia viável em 24h-48h possui diâmetro >= 0.25 mm.
+    """
+    if plate_radius_px <= 0:
+        return 12
+
+    scale_px_per_mm = (2.0 * float(plate_radius_px)) / float(plate_diameter_mm)
+    min_colony_radius_mm = float(min_colony_diameter_mm) / 2.0
+    min_colony_radius_px = min_colony_radius_mm * scale_px_per_mm
+
+    calc_area_px = int(np.pi * (min_colony_radius_px ** 2))
+    return max(8, calc_area_px)
+
+
 def run_colony_counting(
     image_bgr: np.ndarray,
     analyzable_mask: np.ndarray,
     inoculated_volume_ml: Optional[float] = None,
     dilution_factor: Optional[float] = None,
     detection_threshold: float = 0.20,
-    min_area_px: int = 12,
+    min_area_px: Optional[int] = None,
+    plate_radius_px: Optional[float] = None,
     min_circularity: float = 0.40,
 ) -> ColonyCountResult:
-    """Pipeline completo de contagem de colônias."""
+    """Pipeline completo de contagem de colônias com suporte a calibração automática."""
     gray = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
     score_f32 = preprocess_plate_image(image_bgr, analyzable_mask)
     labeled_mask = segment_colonies_watershed(score_f32, analyzable_mask, detection_threshold=detection_threshold)
+
+    # Resolução automática da área mínima se não fornecida
+    if min_area_px is None:
+        if plate_radius_px is not None and plate_radius_px > 0:
+            resolved_min_area = calculate_adaptive_min_colony_area(plate_radius_px)
+        else:
+            mask_area = float(np.count_nonzero(analyzable_mask))
+            est_r = np.sqrt(mask_area / np.pi) if mask_area > 0 else 200.0
+            resolved_min_area = calculate_adaptive_min_colony_area(est_r)
+    else:
+        resolved_min_area = int(min_area_px)
+
     colonies = extract_colony_features(
         labeled_mask,
         gray,
-        min_area_px=min_area_px,
+        min_area_px=resolved_min_area,
         min_circularity=min_circularity,
     )
 

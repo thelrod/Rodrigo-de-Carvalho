@@ -33,3 +33,13 @@ def test_detect_petri_dish_synthetic():
     # Máscara binária deve ser uint8 com 255 no centro e 0 no canto
     assert mask[400, 400] == 255
     assert mask[10, 10] == 0
+
+
+def test_detect_petri_dish_adaptive_meniscus():
+    img = np.zeros((800, 800, 3), dtype=np.uint8)
+    cv2.circle(img, (400, 400), 300, (100, 150, 180), -1)
+
+    roi, mask = detect_petri_dish(img, auto_margin=True)
+    # A margem adaptativa deve ficar em uma faixa biológica plausível (5% a 12%)
+    assert 5.0 <= roi.exclusion_margin_pct <= 12.0
+    assert roi.analyzable_area_px > 0

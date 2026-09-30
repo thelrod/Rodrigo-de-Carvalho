@@ -52,3 +52,29 @@ def test_colony_counting_synthetic_plate():
         assert col.circularity > 0.40
         assert col.solidity > 0.70
         assert col.area_px > 10
+
+
+def test_calculate_adaptive_min_colony_area():
+    from yeast_vision.colony import calculate_adaptive_min_colony_area
+    # Em placa com raio de 450 px (10 px/mm), colônia de 0.25 mm tem raio de 1.25 px
+    # Área ~ pi * 1.25^2 ~ 4.9 px -> limitado a 8 px
+    area_low = calculate_adaptive_min_colony_area(450.0)
+    assert area_low >= 8
+
+    # Em placa com raio de 1500 px (33.3 px/mm), colônia de 0.25 mm tem raio de 4.16 px
+    # Área ~ pi * 4.16^2 ~ 54 px
+    area_high = calculate_adaptive_min_colony_area(1500.0)
+    assert area_high > 40
+    assert area_high > area_low
+
+
+def test_colony_counting_auto_params():
+    h, w = 600, 600
+    img = np.full((h, w, 3), (40, 140, 180), dtype=np.uint8)
+    mask = np.zeros((h, w), dtype=np.uint8)
+    cv2.circle(mask, (300, 300), 250, 255, -1)
+    cv2.circle(img, (200, 200), 15, (230, 240, 245), -1)
+
+    # Executa sem especificar min_area_px (automático via raio)
+    res = run_colony_counting(img, mask, min_area_px=None, plate_radius_px=250.0)
+    assert res.total_colonies_auto >= 1

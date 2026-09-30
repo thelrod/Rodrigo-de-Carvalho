@@ -63,24 +63,48 @@ st.sidebar.subheader("📋 Metadados da Amostra")
 medium_str = st.sidebar.selectbox("Meio de Cultura:", ["YPD", "YPGal", "YPGLy"], index=0)
 medium = MediumType(medium_str)
 
-strain_id = st.sidebar.text_input("Linhagem de Levedura:", value="BY4741 (Grid 4x6)")
-stressor = st.sidebar.text_input("Estressor (ou vazio):", value="LiCl")
-stressor_conc = st.sidebar.number_input("Concentração do Estressor (mM):", min_value=0.0, value=300.0, step=10.0)
+strain_id = st.sidebar.text_input("Linhagem de Levedura:", value="BY4741")
 plate_id = st.sidebar.text_input("Identificador da Placa:", value="PLACA_01")
 
-st.sidebar.subheader("📐 Geometria da Placa")
-margin_pct = st.sidebar.slider("Exclusão Periférica Adaptativa (% raio):", 0.0, 20.0, 8.0, step=0.5)
+st.sidebar.subheader("📐 Calibração e Detecção")
+calib_mode = st.sidebar.radio(
+    "Modo de Ajuste da Placa:",
+    ["Automático (OpenCFU / Calibração 90mm)", "Manual (Avançado)"],
+    index=0,
+)
 
-if "Modo 1" in mode:
-    st.sidebar.subheader("🧫 Parâmetros de Contagem")
-    inoc_vol = st.sidebar.number_input("Volume Plaqueado (mL):", min_value=0.01, max_value=2.0, value=0.10, step=0.05)
-    dil_factor = st.sidebar.number_input("Fator de Diluição (ex: 1000 para 10^-3):", min_value=1.0, value=1000.0, step=10.0)
-    det_thresh = st.sidebar.slider("Sensibilidade do Limiar:", 0.05, 0.50, 0.20, step=0.02)
-    min_area = st.sidebar.slider("Área Mínima da Colônia (px):", 5, 100, 12, step=1)
+if calib_mode == "Manual (Avançado)":
+    margin_pct = st.sidebar.slider("Exclusão Periférica (% raio):", 0.0, 20.0, 8.0, step=0.5)
+    use_auto_margin = False
+    if "Modo 1" in mode:
+        st.sidebar.subheader("🧫 Parâmetros de Contagem")
+        inoc_vol = st.sidebar.number_input("Volume Plaqueado (mL):", min_value=0.01, max_value=2.0, value=0.10, step=0.05)
+        dil_factor = st.sidebar.number_input("Fator de Diluição (ex: 1000 para 10^-3):", min_value=1.0, value=1000.0, step=10.0)
+        det_thresh = st.sidebar.slider("Sensibilidade do Limiar:", 0.05, 0.50, 0.20, step=0.02)
+        min_area = st.sidebar.slider("Área Mínima da Colônia (px):", 5, 100, 12, step=1)
+    else:
+        st.sidebar.subheader("🎯 Parâmetros da Grade de Spots")
+        grid_rows = st.sidebar.number_input("Linhas da Matriz:", min_value=1, max_value=16, value=4, step=1)
+        grid_cols = st.sidebar.number_input("Colunas da Matriz:", min_value=1, max_value=24, value=6, step=1)
+        min_area = 12
 else:
-    st.sidebar.subheader("🎯 Parâmetros da Grade de Spots")
-    grid_rows = st.sidebar.number_input("Linhas da Matriz:", min_value=1, max_value=16, value=4, step=1)
-    grid_cols = st.sidebar.number_input("Colunas da Matriz:", min_value=1, max_value=24, value=6, step=1)
+    margin_pct = None
+    use_auto_margin = True
+    min_area = None
+    det_thresh = 0.20
+    st.sidebar.info(
+        "💡 **Modo Automático Ativo:**\n"
+        "• **Exclusão Periférica:** Adaptativa pelo perfil do menisco da placa (OpenCFU).\n"
+        r"• **Área Mínima da Colônia:** Calculada pela escala física real ($\ge 0.25\text{ mm}$ em placa de $90\text{ mm}$)."
+    )
+    if "Modo 1" in mode:
+        st.sidebar.subheader("🧫 Parâmetros Microbiológicos")
+        inoc_vol = st.sidebar.number_input("Volume Plaqueado (mL):", min_value=0.01, max_value=2.0, value=0.10, step=0.05)
+        dil_factor = st.sidebar.number_input("Fator de Diluição (ex: 1000 para 10^-3):", min_value=1.0, value=1000.0, step=10.0)
+    else:
+        st.sidebar.subheader("🎯 Parâmetros da Grade de Spots")
+        grid_rows = st.sidebar.number_input("Linhas da Matriz:", min_value=1, max_value=16, value=4, step=1)
+        grid_cols = st.sidebar.number_input("Colunas da Matriz:", min_value=1, max_value=24, value=6, step=1)
 
 # --- ÁREA PRINCIPAL: CARREGAMENTO DA IMAGEM ---
 col_src1, col_src2 = st.columns([1, 1])
@@ -116,8 +140,8 @@ if image_bgr is None:
 
 # --- EXECUÇÃO DO PIPELINE DE VISÃO COMPUTACIONAL ---
 with st.spinner("Processando placa e executando controle de qualidade..."):
-    # 1. Detecção da Placa e ROI
-    plate_roi, mask = detect_petri_dish(image_bgr, exclusion_margin_pct=margin_pct)
+    # 1. Detecção da Placa e ROI (com suporte ao modo adaptativo)
+    plate_roi, mask = detect_petri_dish(image_bgr, exclusion_margin_pct=margin_pct, auto_margin=use_auto_margin)
 
     # 2. Avaliação de Controle de Qualidade (QC)
     qc = evaluate_image_quality(
@@ -132,8 +156,8 @@ with st.spinner("Processando placa e executando controle de qualidade..."):
         timestamp_capture=datetime.now(),
         medium=medium,
         carbon_source_concentration_pct=2.0,
-        stressor=stressor if stressor else None,
-        stressor_concentration_mM=stressor_conc if stressor else None,
+        stressor=None,
+        stressor_concentration_mM=None,
         strain_id=strain_id,
         plate_id=plate_id,
         experiment_type=ExperimentType.COLONY_COUNT if "Modo 1" in mode else ExperimentType.SPOT_ASSAY,
@@ -169,6 +193,7 @@ if "Modo 1" in mode:
             dilution_factor=dil_factor,
             detection_threshold=det_thresh,
             min_area_px=min_area,
+            plate_radius_px=plate_roi.radius_px,
         )
 
     # Métricas principais
