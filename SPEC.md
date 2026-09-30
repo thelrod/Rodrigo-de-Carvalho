@@ -1,7 +1,7 @@
 # SPEC.md — YeastPlate Analyzer (Especificação Técnica e Contratos de I/O)
-*Versão:* 2.0.0  
+*Versão:* 2.1.0  
 *Última Atualização:* 2026-09-30  
-*Status:* Aprovado com Ressalvas (Revisão 2)  
+*Status:* Etapa 0 Concluída e Auditada (Revisão 2)  
 *Ecossistema de Execução:* Multi-agente (Antigravity IDE local + Google Jules Cloud + Desenvolvedor Humano)
 
 ---
@@ -44,9 +44,9 @@ flowchart TD
 | ID | Nome da Tarefa | Entradas | Saídas Esperadas | Agente Recomendado | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **T0.1** | Governança Base | Diretrizes Rev. 2 | `SPEC.md`, `DECISIONS.md`, `INVENTORY.md` | Antigravity | **Concluído** |
-| **T0.2** | Protocolo Fotográfico | Boas práticas microbiológicas | `PROTOCOL.md` | Antigravity | **Em andamento** |
-| **T0.3** | Dataset de Referência | Amostras locais | `reference_dataset/` estruturado + `metadata_template.json` | Antigravity | **Em andamento** |
-| **T0.4** | Versionamento Git | Workspace | Repo Git inicializado com `.gitignore` | Antigravity | **Concluído** |
+| **T0.2** | Protocolo Fotográfico | Boas práticas microbiológicas | `PROTOCOL.md` | Antigravity | **Concluído** |
+| **T0.3** | Dataset de Referência | Amostras locais | `reference_dataset/` + `dataset_manifest.json` | Antigravity | **Concluído** |
+| **T0.4** | Versionamento Git | Workspace | Repo Git com `.gitignore` e commit inicial | Antigravity | **Concluído** |
 | **T1.1** | Contratos de Dados | `SPEC.md` | `yeast_vision/contracts.py` (Pydantic v2) | Antigravity | Pendente |
 | **T1.2** | QC Camada 1 | Imagem RGB/RAW | `yeast_vision/qc.py` (Laplacian, saturação, corte) | Antigravity / Jules | Pendente |
 | **T1.3** | Detector de Placa | Imagem + QC aprovado | `yeast_vision/plate.py` (Máscara elíptica/circular adaptativa) | Antigravity / Jules | Pendente |
@@ -86,11 +86,14 @@ class ImageMetadata(BaseModel):
     carbon_source_concentration_pct: float = Field(2.0, ge=0.1, le=10.0)
     stressor: Optional[str] = Field(None, description="Nome do composto, ex: LiCl, NaCl, H2O2")
     stressor_concentration_mM: Optional[float] = Field(None, ge=0.0)
-    incubation_time_hours: float = Field(..., ge=0.0, le=168.0)
+    incubation_time_hours: Optional[float] = Field(None, ge=0.0, le=168.0)
     temperature_celsius: float = Field(30.0, ge=15.0, le=45.0)
     strain_id: str = Field(..., description="Identificador da linhagem (ex: BY4741, W303, mutante)")
     plate_id: str
     experiment_type: ExperimentType
+    partition: str = Field("stress_test", description="train | validation | test_frozen | stress_test")
+    operator_id: Optional[str] = Field(None, description="Nome ou ID do operador")
+    has_artifacts: bool = Field(False, description="True se contiver fita, caneta marcadora ou reflexo severo")
 ```
 
 ### 3.2 Controle de Qualidade da Imagem (`QCResult`)
@@ -105,11 +108,14 @@ class QCResult(BaseModel):
     blur_score_laplacian: float = Field(..., description="Variância do operador Laplaciano")
     fraction_saturated_pixels: float = Field(..., ge=0.0, le=1.0)
     fraction_underexposed_pixels: float = Field(..., ge=0.0, le=1.0)
-    resolution_width_px: int = Field(..., ge=500)
-    resolution_height_px: int = Field(..., ge=500)
+    resolution_width_px: int = Field(..., ge=400, description="Largura física em pixels da imagem (limite técnico mínimo)")
+    resolution_height_px: int = Field(..., ge=400, description="Altura física em pixels da imagem (limite técnico mínimo)")
     is_plate_fully_visible: bool
     rejection_reasons: list[str] = Field(default_factory=list)
 ```
+
+> [!NOTE]
+> **Diferença entre Validação de Schema e Critério de QC:** O schema Pydantic aceita resoluções $\ge 400\text{ px}$ para evitar exceções de compilação em fotos antigas ou recortes de teste. O módulo de QC avalia se a menor dimensão é $< 1200\text{ px}$; caso seja, ele registra um aviso `QC_LOW_RESOLUTION_WARNING` sem derrubar a execução do pipeline.
 
 ### 3.3 Saída da Detecção da Placa (`PlateROIResult`)
 ```python
@@ -189,7 +195,7 @@ class SpotAssayResult(BaseModel):
   $$\text{Sinal}_{\text{médio\_spot}} > \text{Fundo}_{\text{ágar}} + 3 \times \sigma_{\text{ruído\_fundo}}$$
 * **Medida Complementar:** Sinal integrado corrigido pelo fundo em unidades arbitrárias (a.u.):
   $$\text{Sinal Integrado} = \sum_{p \in \text{Spot}} \left( I(p) - I_{\text{fundo\_local}} \right)$$
-  *É vedado denominar essa medida como Densidade Óptica (OD).*
+  *É expressamente vedado denominar essa medida como Densidade Óptica (OD).*
 
 ---
 
@@ -202,7 +208,10 @@ class SpotAssayResult(BaseModel):
 2. **Saturação de Pixels (Over/Underexposure):**
    * Superexposição: Fração de pixels com intensidade $\ge 250$ no canal de luminosidade $> 5\% \implies$ `WARNING_OVEREXPOSED`.
    * Subexposição: Fração de pixels com intensidade $\le 15$ dentro da ROI $> 10\% \implies$ `WARNING_UNDEREXPOSED`.
-3. **Resolução Mínima:** A imagem deve possuir no mínimo $1200 \times 1200$ pixels e a placa deve ocupar pelo menos $60\%$ do enquadramento.
+3. **Resolução de Aquisição:**
+   * Recomendada: $\ge 1200 \times 1200\text{ px}$.
+   * Mínimo aceitável para schema: $400 \times 400\text{ px}$. Imagens entre 400 e 1200 px recebem o aviso `QC_LOW_RESOLUTION_WARNING`.
+4. **Enquadramento da Placa:** A placa de Petri deve estar totalmente visível e ocupar pelo menos $60\%$ da área útil.
 
 ### Camada 2 (Refinada com Benchmark — Etapa 2)
 * Detecção de reflexos especulares em anel (glare do poliestireno).
@@ -218,6 +227,7 @@ class SpotAssayResult(BaseModel):
 | `QC_BLUR_EXCESSIVE` | Warning | Imagem fora de foco | Requer confirmação humana para prosseguir |
 | `QC_PLATE_CLIPPED` | Error | Borda da placa cortada no enquadramento | Rejeita análise automática completa |
 | `QC_SATURATION_HIGH` | Warning | Reflexo ou superexposição compromete área | Marca região saturada como `UNQUANTIFIABLE` |
+| `QC_LOW_RESOLUTION_WARNING` | Warning | Resolução abaixo de 1200x1200 px | Alerta analista de possível perda de microcolônias |
 | `COLONY_OVERSEGMENTATION_RISK` | Info | Muitas colônias contíguas com watershed denso | Recomenda inspeção visual do analista |
 | `SPOT_GRID_AMBIGUITY` | Warning | Grade de gotas irregular ou incompleta | Solicita confirmação manual da matriz |
 | `METADATA_INCOMPLETE` | Error | Falta linhagem, meio ou diluição | Bloqueia cálculo final de UFC/mL |

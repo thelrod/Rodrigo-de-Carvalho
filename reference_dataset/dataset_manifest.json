@@ -1,0 +1,65 @@
+{
+  "manifest_version": "1.0.0",
+  "project": "YeastPlate Analyzer",
+  "dataset_description": "Conjunto de referência e validação para placas de Petri com leveduras (S. cerevisiae)",
+  "license": "CC-BY-4.0",
+  "total_images": 2,
+  "partitions": {
+    "train": 0,
+    "validation": 0,
+    "test_frozen": 0,
+    "stress_test": 2
+  },
+  "images": [
+    {
+      "image_id": "f8cffd7054827da290eadc3a3bc659932fc6bbfa7060b1e3b935338e138430a3",
+      "filename": "SAMPLE_YPD_300mM_LiCl.jpg",
+      "relative_path": "raw/SAMPLE_YPD_300mM_LiCl.jpg",
+      "partition": "stress_test",
+      "sha256": "f8cffd7054827da290eadc3a3bc659932fc6bbfa7060b1e3b935338e138430a3",
+      "resolution": {
+        "width_px": 460,
+        "height_px": 1024
+      },
+      "medium": "YPD",
+      "carbon_source_concentration_pct": 2.0,
+      "stressor": "LiCl",
+      "stressor_concentration_mM": 300.0,
+      "incubation_time_hours": 48.0,
+      "temperature_celsius": 30.0,
+      "strain_id": "S. cerevisiae (wild-type/mutant grid)",
+      "plate_id": "PLATE_YPD_300mM_0602",
+      "experiment_type": "spot_assay",
+      "has_artifacts": true,
+      "artifact_description": "Contém anotações manuais com caneta de retroprojetor ('06/02', '300mM LiCl') e fita adesiva na base. Imagem em formato portrait (460x1024 px).",
+      "date_annotated_on_plate": "2026-02-06",
+      "date_file_timestamp": "2026-02-28",
+      "operator_id": "Rodrigo de Carvalho"
+    },
+    {
+      "image_id": "1f2718b72d2b64310df369e1653366e7d02177e56499170279fce7f15f333b7d",
+      "filename": "SAMPLE_YPGAL_20mM_LiCl.jpg",
+      "relative_path": "raw/SAMPLE_YPGAL_20mM_LiCl.jpg",
+      "partition": "stress_test",
+      "sha256": "1f2718b72d2b64310df369e1653366e7d02177e56499170279fce7f15f333b7d",
+      "resolution": {
+        "width_px": 460,
+        "height_px": 1024
+      },
+      "medium": "YPGal",
+      "carbon_source_concentration_pct": 2.0,
+      "stressor": "LiCl",
+      "stressor_concentration_mM": 20.0,
+      "incubation_time_hours": 48.0,
+      "temperature_celsius": 30.0,
+      "strain_id": "S. cerevisiae (wild-type/mutant grid)",
+      "plate_id": "PLATE_YPGAL_20mM_2602",
+      "experiment_type": "spot_assay",
+      "has_artifacts": true,
+      "artifact_description": "Contém anotações manuais ('20mM LiCl', 'YPGAL', '26/02') e fita adesiva na base. Imagem em formato portrait (460x1024 px).",
+      "date_annotated_on_plate": "2026-02-26",
+      "date_file_timestamp": "2026-02-28",
+      "operator_id": "Rodrigo de Carvalho"
+    }
+  ]
+}

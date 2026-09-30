@@ -42,7 +42,8 @@
       "type": ["number", "null"]
     },
     "incubation_time_hours": {
-      "type": "number"
+      "type": ["number", "null"],
+      "description": "Tempo total de incubação em horas"
     },
     "temperature_celsius": {
       "type": "number",
@@ -65,10 +66,11 @@
       "enum": ["train", "validation", "test_frozen", "stress_test"]
     },
     "operator_id": {
-      "type": "string"
+      "type": ["string", "null"]
     },
     "has_artifacts": {
       "type": "boolean",
+      "default": false,
       "description": "True se contiver fita, caneta marcadora ou condensação visível"
     }
   }
