@@ -67,3 +67,34 @@ uv run --with opencv-python-headless --with scipy --with numpy --with pydantic p
 ```
 
 O relatório consolidado será gravado em `benchmarks/report_baseline.json` e as imagens anotadas em `output/diagnostics/`.
+
+---
+
+## 📱 Aplicativo Mobile & API Backend
+
+O sistema possui agora um aplicativo móvel (React Native / Expo) e uma API FastAPI dedicada para integrar os algoritmos ao smartphone do laboratório.
+
+### 1. Iniciar o Backend FastAPI
+
+O backend recebe fotos do aplicativo e retorna resultados estruturados em JSON e Base64.
+Na raiz do repositório, inicie o servidor:
+
+```bash
+uv run --with fastapi --with uvicorn --with python-multipart --with pydantic --with opencv-python-headless --with scipy --with numpy uvicorn api.server:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### 2. Iniciar o Aplicativo Expo Mobile
+
+O app Mobile conecta com a API para realizar a análise a partir da câmera do celular.
+
+```bash
+cd mobile
+# Instalar dependências se for a primeira vez
+npm install
+
+# (Opcional) Configurar o IP do servidor FastAPI se estiver rodando em dispositivo físico
+# export EXPO_PUBLIC_API_URL=http://<IP_DA_MAQUINA>:8000/api/v1
+
+# Iniciar o Expo Dev Server
+npx expo start
+```
