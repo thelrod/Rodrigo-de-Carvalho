@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PlateImageMetadata",
+  "type": "object",
+  "required": [
+    "image_id",
+    "filename",
+    "timestamp_capture",
+    "medium",
+    "strain_id",
+    "plate_id",
+    "experiment_type",
+    "partition"
+  ],
+  "properties": {
+    "image_id": {
+      "type": "string",
+      "description": "Identificador único ou hash SHA-256 da imagem original"
+    },
+    "filename": {
+      "type": "string",
+      "description": "Nome do arquivo na pasta raw/"
+    },
+    "timestamp_capture": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data e hora ISO-8601 da captura fotográfica"
+    },
+    "medium": {
+      "type": "string",
+      "enum": ["YPD", "YPGal", "YPGly"]
+    },
+    "carbon_source_concentration_pct": {
+      "type": "number",
+      "default": 2.0
+    },
+    "stressor": {
+      "type": ["string", "null"],
+      "description": "Ex: LiCl, NaCl, H2O2, Sorbitol ou null se controle"
+    },
+    "stressor_concentration_mM": {
+      "type": ["number", "null"]
+    },
+    "incubation_time_hours": {
+      "type": "number"
+    },
+    "temperature_celsius": {
+      "type": "number",
+      "default": 30.0
+    },
+    "strain_id": {
+      "type": "string",
+      "description": "Linhagem de levedura (ex: BY4741, W303)"
+    },
+    "plate_id": {
+      "type": "string",
+      "description": "Identificador da placa física"
+    },
+    "experiment_type": {
+      "type": "string",
+      "enum": ["colony_count", "spot_assay"]
+    },
+    "partition": {
+      "type": "string",
+      "enum": ["train", "validation", "test_frozen", "stress_test"]
+    },
+    "operator_id": {
+      "type": "string"
+    },
+    "has_artifacts": {
+      "type": "boolean",
+      "description": "True se contiver fita, caneta marcadora ou condensação visível"
+    }
+  }
+}
