@@ -44,11 +44,16 @@ def _encode_image_base64(img: np.ndarray) -> str:
     return base64.b64encode(encoded_image).decode('utf-8')
 
 def _create_metadata(filename: str, experiment_type: ExperimentType, medium: str, strain_id: str, plate_id: str) -> ImageMetadata:
-     return ImageMetadata(
+    try:
+        medium_enum = MediumType(medium)
+    except ValueError:
+        raise HTTPException(status_code=422, detail=f"Invalid medium: {medium}")
+
+    return ImageMetadata(
         image_id=f"IMG_{int(time.time())}",
         filename=filename,
         timestamp_capture=datetime.now(),
-        medium=MediumType(medium),
+        medium=medium_enum,
         carbon_source_concentration_pct=2.0,
         stressor=None,
         stressor_concentration_mM=None,
