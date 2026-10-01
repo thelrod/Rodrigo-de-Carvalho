@@ -75,6 +75,11 @@ export default function CameraScreen() {
   return (
     <View style={styles.container}>
       <CameraView style={styles.camera} facing={"back"} flash={"off"} ref={cameraRef}>
+        <View style={styles.topBar}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+            <Text style={styles.backIconText}>‹</Text>
+          </TouchableOpacity>
+        </View>
         <View style={styles.overlayContainer}>
             {/* Guide circle */}
             <View style={[
@@ -177,5 +182,31 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
+  },
+  topBar: {
+    position: 'absolute',
+    top: 50,
+    left: 20,
+    zIndex: 10,
+  },
+  backButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#1E1E1E',
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  backIconText: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#1E1E1E',
+    lineHeight: 26,
   },
 });

@@ -76,13 +76,13 @@ export default function DashboardScreen() {
       {/* Floating Bottom Dock */}
       <View style={styles.dockWrapper}>
         <View style={styles.dock}>
-            <TouchableOpacity style={styles.dockIcon}>
+            <TouchableOpacity style={[styles.dockIcon, styles.dockIconActive]} onPress={() => router.push('/')}>
                 <Text style={styles.iconText}>🏠</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.dockIcon}>
                 <Text style={styles.iconText}>📄</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.dockIcon, styles.dockIconActive]}>
+            <TouchableOpacity style={styles.dockIcon} onPress={handleLaunchCamera}>
                 <Text style={styles.iconText}>🎛️</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.dockIcon}>
