@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, ScrollView, Image, ActivityIndicator, Alert, TouchableOpacity, KeyboardAvoidingView, Platform, SafeAreaView } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
-import axios from 'axios';
 import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system/legacy';
 import { Paths, File } from 'expo-file-system';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.4:8000/api/v1';
@@ -36,38 +36,44 @@ export default function AnalyzeScreen() {
         setResult(null);
 
         try {
-            const formData = new FormData();
-            formData.append('file', { uri, name: 'upload.jpg', type: 'image/jpeg' } as any);
-            formData.append('medium', medium);
-            formData.append('strain_id', strainId);
-            formData.append('plate_id', plateId);
-
             let endpoint = '';
+            const parameters: Record<string, string> = {
+                medium,
+                strain_id: strainId,
+                plate_id: plateId,
+            };
+
             if (mode === 'colony') {
                 endpoint = `${apiUrl}/colony-count`;
-                formData.append('inoc_vol', inocVol.replace(',', '.'));
-                formData.append('dil_factor', dilFactor.replace(',', '.'));
+                parameters.inoc_vol = inocVol.replace(',', '.');
+                parameters.dil_factor = dilFactor.replace(',', '.');
             } else {
                 endpoint = `${apiUrl}/spot-assay`;
-                formData.append('grid_rows', gridRows.replace(',', '.'));
-                formData.append('grid_cols', gridCols.replace(',', '.'));
+                parameters.grid_rows = gridRows.replace(',', '.');
+                parameters.grid_cols = gridCols.replace(',', '.');
             }
 
-            const response = await fetch(endpoint, {
-                method: 'POST',
+            const uploadResponse = await FileSystem.uploadAsync(endpoint, uri, {
+                httpMethod: 'POST',
+                uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+                fieldName: 'file',
+                mimeType: 'image/jpeg',
+                parameters,
                 headers: {
                     'Accept': 'application/json',
                 },
-                body: formData,
             });
 
-            if (!response.ok) {
-                const errJson = await response.json().catch(() => null);
-                const detail = errJson?.detail || `Server status ${response.status}`;
-                throw new Error(detail);
+            if (uploadResponse.status < 200 || uploadResponse.status >= 300) {
+                let errorDetail = `Server returned status ${uploadResponse.status}`;
+                try {
+                    const parsed = JSON.parse(uploadResponse.body);
+                    if (parsed.detail) errorDetail = typeof parsed.detail === 'string' ? parsed.detail : JSON.stringify(parsed.detail);
+                } catch (_) {}
+                throw new Error(errorDetail);
             }
 
-            const data = await response.json();
+            const data = JSON.parse(uploadResponse.body);
             setResult(data);
         } catch (error: any) {
             console.error(error);
@@ -309,7 +315,7 @@ export default function AnalyzeScreen() {
                     )}
 
                     <View style={{ alignItems: 'center', marginTop: 32, marginBottom: 12 }}>
-                        <Text style={{ fontSize: 12, color: '#888', fontWeight: '600' }}>YeastPlate Mobile v1.1.0</Text>
+                        <Text style={{ fontSize: 12, color: '#888', fontWeight: '600' }}>YeastPlate Mobile v1.2.0</Text>
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
