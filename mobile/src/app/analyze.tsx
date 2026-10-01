@@ -5,7 +5,7 @@ import axios from 'axios';
 import * as Sharing from 'expo-sharing';
 import { Paths, File } from 'expo-file-system';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.0.2.2:8000/api/v1';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.100.4:8000/api/v1';
 
 export default function AnalyzeScreen() {
     const { uri } = useLocalSearchParams<{ uri: string }>();
