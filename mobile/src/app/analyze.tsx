@@ -22,6 +22,8 @@ export default function AnalyzeScreen() {
 
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
+    const [apiUrl, setApiUrl] = useState(API_URL);
+    const [showConfig, setShowConfig] = useState(false);
     const [showOverlay, setShowOverlay] = useState(true);
 
     const handleAnalyze = async () => {
@@ -42,23 +44,34 @@ export default function AnalyzeScreen() {
 
             let endpoint = '';
             if (mode === 'colony') {
-                endpoint = `${API_URL}/colony-count`;
+                endpoint = `${apiUrl}/colony-count`;
                 formData.append('inoc_vol', inocVol.replace(',', '.'));
                 formData.append('dil_factor', dilFactor.replace(',', '.'));
             } else {
-                endpoint = `${API_URL}/spot-assay`;
+                endpoint = `${apiUrl}/spot-assay`;
                 formData.append('grid_rows', gridRows.replace(',', '.'));
                 formData.append('grid_cols', gridCols.replace(',', '.'));
             }
 
-            const response = await axios.post(endpoint, formData, {
-                headers: { 'Accept': 'application/json' },
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                },
+                body: formData,
             });
 
-            setResult(response.data);
+            if (!response.ok) {
+                const errJson = await response.json().catch(() => null);
+                const detail = errJson?.detail || `Server status ${response.status}`;
+                throw new Error(detail);
+            }
+
+            const data = await response.json();
+            setResult(data);
         } catch (error: any) {
             console.error(error);
-            const errorMessage = error.response?.data?.detail || error.message || 'Unknown error occurred.';
+            const errorMessage = error.message || 'Unknown error occurred.';
             Alert.alert('Analysis Failed', typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
         } finally {
             setLoading(false);
@@ -102,12 +115,27 @@ export default function AnalyzeScreen() {
                         <Text style={styles.iconText}>‹</Text>
                     </TouchableOpacity>
                     <Text style={styles.topBarTitle}>{plateId}</Text>
-                    <TouchableOpacity style={styles.iconButton}>
-                        <Text style={styles.iconText}>⋮</Text>
+                    <TouchableOpacity style={styles.iconButton} onPress={() => setShowConfig(!showConfig)}>
+                        <Text style={styles.iconText}>⚙️</Text>
                     </TouchableOpacity>
                 </View>
 
                 <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+
+                    {/* Server Configuration (Quick Switch) */}
+                    {showConfig && (
+                        <View style={styles.configContainer}>
+                            <Text style={styles.label}>Backend Server URL:</Text>
+                            <TextInput
+                                style={styles.input}
+                                value={apiUrl}
+                                onChangeText={setApiUrl}
+                                autoCapitalize="none"
+                                autoCorrect={false}
+                                placeholder="http://192.168.100.4:8000/api/v1"
+                            />
+                        </View>
+                    )}
 
                     {/* Count Banner (Colony Mode) */}
                     {mode === 'colony' && result && (
@@ -621,5 +649,13 @@ const styles = StyleSheet.create({
         color: '#1E1E1E',
         fontWeight: '900',
         fontSize: 16,
+    },
+    configContainer: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        padding: 16,
+        borderWidth: 1.5,
+        borderColor: '#1E1E1E',
+        marginBottom: 16,
     }
 });
