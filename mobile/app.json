@@ -2,7 +2,7 @@
   "expo": {
     "name": "YeastPlate Analyzer Mobile",
     "slug": "yeastplate-analyzer-mobile",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "orientation": "portrait",
     "scheme": "yeastplate",
     "icon": "./assets/icon.png",
@@ -12,6 +12,7 @@
     },
     "android": {
       "package": "com.thelrod.yeastplate",
+      "versionCode": 2,
       "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",

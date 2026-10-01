@@ -303,10 +303,13 @@ export default function AnalyzeScreen() {
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#D8EEF8'}]} onPress={handleShareImage}>
                                     <Text style={styles.actionButtonText}>🖼️ Share Image</Text>
-                                </TouchableOpacity>
                             </View>
                         </View>
                     )}
+
+                    <View style={{ alignItems: 'center', marginTop: 32, marginBottom: 12 }}>
+                        <Text style={{ fontSize: 12, color: '#888', fontWeight: '600' }}>YeastPlate Mobile v1.1.0</Text>
+                    </View>
                 </ScrollView>
             </KeyboardAvoidingView>
         </SafeAreaView>
