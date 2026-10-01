@@ -303,6 +303,7 @@ export default function AnalyzeScreen() {
                                 </TouchableOpacity>
                                 <TouchableOpacity style={[styles.actionButton, {backgroundColor: '#D8EEF8'}]} onPress={handleShareImage}>
                                     <Text style={styles.actionButtonText}>🖼️ Share Image</Text>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     )}
